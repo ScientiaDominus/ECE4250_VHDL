@@ -8,6 +8,6 @@ end FullAdder;
 
 Architecture Structure of FullAdder is
 begin 
-	Sum <= A XOR B XOR Bin;
-	Cout <= (X AND Y) OR (X AND Cin) OR (Y AND Cin);
+	Sum <= A XOR B XOR Cin;
+	Cout <= (A AND B) OR (A AND Cin) OR (B AND Cin);
 end Structure;
