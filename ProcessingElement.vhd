@@ -15,7 +15,7 @@ architecture Structure of PE is
     signal Multiplied: integer;
     signal AddReg: integer;
     begin
-    process(clk, clr)
+    process(clk, clr, load)
         begin
         if clr = '1' then
             MandReg <= 0;
