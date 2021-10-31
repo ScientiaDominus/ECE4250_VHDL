@@ -1,2 +1,27 @@
 # Reading pref.tcl
-# OpenFile {C:/Users/mrf/Documents/`Classes/ECE 4250 - VHDL & Devices/Project/ECE4250_VHDL/24bitRegister.vhd}
+# OpenFile {C:/Users/mrf/Documents/`Classes/ECE 4250 - VHDL & Devices/Project/ECE4250_VHDL/FileIO.vhd}
+project open C:/intelFPGA/20.1/ECE4250_Project
+# Warning: Project file C:/intelFPGA/20.1/ECE4250_Project.mpf is not write enabled.
+# Will not be able to save changes to project.
+# Loading project ECE4250_Project
+# Error opening C:/intelFPGA/20.1/FileIO.vhd
+# Path name 'C:/intelFPGA/20.1/FileIO.vhd' doesn't exist.
+# Warning: Cannot write compile report file: C:/intelFPGA/20.1/ECE4250_Project.cr.mti
+# Project file C:/intelFPGA/20.1/ECE4250_Project.mpf is write protected, data cannot be saved.
+# Unable to save project.
+# Project file C:/intelFPGA/20.1/ECE4250_Project.mpf is write protected, data cannot be saved.
+# Unable to save project.
+# Error opening C:/intelFPGA/20.1/8bitMultiplier.vhd
+# Path name 'C:/intelFPGA/20.1/8bitMultiplier.vhd' doesn't exist.
+# Warning: Cannot write compile report file: C:/intelFPGA/20.1/ECE4250_Project.cr.mti
+# Project file C:/intelFPGA/20.1/ECE4250_Project.mpf is write protected, data cannot be saved.
+# Unable to save project.
+# Project file C:/intelFPGA/20.1/ECE4250_Project.mpf is write protected, data cannot be saved.
+# Unable to save project.
+# Warning: Cannot write compile report file: C:/intelFPGA/20.1/ECE4250_Project.cr.mti
+# Project file C:/intelFPGA/20.1/ECE4250_Project.mpf is write protected, data cannot be saved.
+# Unable to save project.
+# Project file C:/intelFPGA/20.1/ECE4250_Project.mpf is write protected, data cannot be saved.
+# Unable to save project.
+# Project file C:/intelFPGA/20.1/ECE4250_Project.mpf is write protected, data cannot be saved.
+# Unable to save project.
