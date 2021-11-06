@@ -20,7 +20,7 @@ begin
 				when 0 => --Wait State, waits until memory has input matrices
 					if  MemCheck = '1' then State <= 1;
 					elsif MemCheck = '0' then State <= 0;
-					end if
+					end if;
 				when 1 => --Calc State, waits until memory is found then triggers the calculation state
 					if CalcDone = '1' then State <= 2;
 					elsif CalcDone = '0' then State <= 1;
