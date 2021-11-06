@@ -30,6 +30,5 @@ architecture Structure of PE is
             AddReg := addIn + Multiplied;
             Sout <= AddReg;
         end if; 
-        Mout <= Mcand;
     end process;
 end Structure;

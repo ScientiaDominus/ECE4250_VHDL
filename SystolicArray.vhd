@@ -77,3 +77,4 @@ begin
     end process;
 
 end Structure;
+
