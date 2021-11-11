@@ -33,6 +33,8 @@ component PE
     Mout: out integer;
     Sout: out integer);
 end component;
+
+
 signal addsig: ADDS;
 signal mliers: ADDS;
 signal B_row: input_array;
@@ -66,13 +68,15 @@ begin
     PE31: PE port map (load, clr, clk, A(3,1), mliers(3,0), addsig(2,1), mliers(3,1), addsig(3,1));
     PE32: PE port map (load, clr, clk, A(3,2), mliers(3,1), addsig(2,2), mliers(3,2), addsig(3,2));
     PE33: PE port map (load, clr, clk, A(3,3), mliers(3,2), addsig(2,3), mliers(3,3), addsig(3,3));
+
     process(clk)
     variable cnt: integer := 0;
     begin
         if(Calc_Start = '1' and rising_edge(clk) and cnt /= N) then 
             for i in 0 to N loop
-                B_row(i) := B(i, cnt);
+                B_row(i) <= B(i, cnt);
             end loop;
+            cnt := cnt + 1;
         end if;
     end process;
 
