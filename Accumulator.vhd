@@ -14,31 +14,38 @@ end accumulator;
 
 architecture Structure of accumulator is
 type int_array is array(0 to (3*N - 1)) of integer;
---signal AccArray: int_array;
+signal AccArray: int_array;
 begin
 
 process(clk)
     variable shift_amount: integer := 0;
-    variable AccArray: int_array;
+    --variable AccArray: int_array;
     begin
-    shift_amount := (N+1 -((N+1) - index)); 
-    if(CalcDone = '1') then 
-        for j in 0 to shift_amount loop
+    if clk'event and clk = '1' then 
+        shift_amount := (N+1 -((N+1) - index)); 
+
+        if(CalcDone = '1') then 
+            for j in 0 to shift_amount loop
+                for i in (3*N - 1) downto 0 loop
+                    if(i = 0) then 
+                        AccArray(i) <= InValue;
+                    else 
+                        AccArray(i) <= AccArray(i -1 );
+                    end if;
+                end loop; -- shiftloop
+            end loop; --external shift loop
+        end if;
+        if(Calc_Start = '1' and CalcDone = '0') then
             for i in (3*N - 1) downto 0 loop
-                if(i /= 0) then 
-                    AccArray(i) := AccArray(i - 1);
+                if(i = 0) then 
+                    AccArray(i) <= InValue;
+                else 
+                    AccArray(i) <= AccArray(i - 1);
                 end if;
-            end loop; -- shiftloop
-        end loop; --external shift loop
+            end loop; -- clocked loop for calculations
+        end if;
+        OutValue <= AccArray((3*N-1));
     end if;
-    if(Calc_Start = '1' and CalcDone = '0') then
-        for i in (3*N - 1) downto 0 loop
-            if (i /= 0) then
-                AccArray(i) := AccArray(i - 1);
-            end if;
-        end loop; -- clocked loop for calculations
-        AccArray(0) := InValue;
-        OutValue <= AccArray(N);
-    end if;
+
 end process;
 end Structure;
