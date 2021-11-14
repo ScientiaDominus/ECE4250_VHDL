@@ -26,7 +26,7 @@ entity SystolicArray is
 end SystolicArray;
 
 architecture Structure of SystolicArray is 
-component PE 
+component PE is
     port(load, clr, clk: in std_logic;
     Mcand, Mlier: in integer;
     addIn: in integer;
@@ -34,10 +34,20 @@ component PE
     Sout: out integer);
 end component;
 
+component accumulator is 
+    generic(index: integer range 0 to 255;
+            N: integer range 0 to 255);
+    port(
+        load, clr, clk, CalcDone, Calc_Start: in std_logic;
+        InValue: in integer;
+        OutValue: out integer
+    );
+end component;
 
 signal addsig: ADDS;
 signal mliers: ADDS;
 signal B_row: input_array;
+signal CalcDone: std_logic;
 begin 
     --ProcElement: for i in 0 to N generate
     --    ProcEl: for j in 0 to N generate
@@ -69,14 +79,36 @@ begin
     PE32: PE port map (load, clr, clk, A(3,2), mliers(3,1), addsig(2,2), mliers(3,2), addsig(3,2));
     PE33: PE port map (load, clr, clk, A(3,3), mliers(3,2), addsig(2,3), mliers(3,3), addsig(3,3));
 
+    --Accumulators for Matrix Storage. 
+    AC0: accumulator generic map(0, 4) port map (load, clr, clk, CalcDone, Calc_Start, addsig(3,0), open);
+    AC1: accumulator generic map(1, 4) port map (load, clr, clk, CalcDone, Calc_Start, addsig(3,1), open);
+    AC2: accumulator generic map(2, 4) port map (load, clr, clk, CalcDone, Calc_Start, addsig(3,2), open);
+    AC3: accumulator generic map(3, 4) port map (load, clr, clk, CalcDone, Calc_Start, addsig(3,3), open);
+    
+    
     process(clk)
-    variable cnt: integer := 0;
+    variable in_cnt: integer := 0;
+    variable Cycle_Count: integer := 0;
     begin
-        if(Calc_Start = '1' and rising_edge(clk) and cnt /= N) then 
-            for i in 0 to N loop
-                B_row(i) <= B(i, cnt);
-            end loop;
-            cnt := cnt + 1;
+        --if(in_cnt = 0 and Cycle_Count = 0) then
+        --    for i in 0 to 3 loop
+        --        for j in 0 to 3 loop
+        --            addSig(i,j) <= 0;
+        --            mliers(i,j) <= 0;
+        --        end loop; 
+        --    end loop;
+        --end if; 
+        if(rising_edge(clk)) then 
+            if(Calc_Start = '1' and in_cnt /= N) then
+                for i in 0 to N-1 loop
+                    B_row(i) <= B(i, in_cnt);
+                end loop;
+                in_cnt := in_cnt + 1;
+            end if;
+            if(Cycle_Count = (3*N - 2)) then 
+                    CalcDone <= '1';
+            end if;
+            Cycle_Count := Cycle_Count + 1;
         end if;
     end process;
 

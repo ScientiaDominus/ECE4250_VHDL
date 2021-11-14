@@ -25,7 +25,7 @@ architecture Structure of PE is
                 MandReg := Mcand;
                 MierReg := Mlier;
             end if;
-            Mout <= MandReg;
+            Mout <= MierReg;
             Multiplied := MandReg * MierReg;
             AddReg := addIn + Multiplied;
             Sout <= AddReg;
