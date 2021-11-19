@@ -4,10 +4,10 @@ use ieee.numeric_std.all;
 use ieee.math_real.all;
 
 package array_type is
-    type input_array is array(0 to 3) of integer;
-    type input_mtx is array(0 to 3, 0 to 3) of integer;
-    type output_mtx is array(0 to 3, 0 to 3) of integer;
-    type ADDS is array (0 to 3, 0 to 3) of integer;
+    type input_array is array(integer range <>) of integer;
+    type input_mtx is array(integer range <>, integer range <>) of integer;
+    type output_mtx is array(integer range <>, integer range <>) of integer;
+    type ADDS is array (integer range <>, integer range <>) of integer;
 end package;
 
 library ieee;
@@ -18,10 +18,11 @@ use ieee.math_real.all;
 use work.array_type.all;
 
 entity SystolicArray is
-    port(N: in integer;
+    generic(N: integer range 0 to 255 := 4);
+    port(
         load, clr, clk, Calc_Start: in std_logic;
-        A: in input_mtx;
-        B: in input_mtx
+        A: in input_mtx(0 to N-1,0 to N-1);
+        B: in input_mtx(0 to N-1,0 to N-1)
             );
 end SystolicArray;
 
@@ -44,11 +45,13 @@ component accumulator is
     );
 end component;
 
-signal addsig: ADDS;
-signal mliers: ADDS;
-signal B_row: input_array;
+signal addsig: ADDS(0 to N-1, 0 to N-1) := (others => (others => 0)); --Figure out how to get the inititialization for these values down. 
+signal mliers: ADDS(0 to N-1, 0 to N-1) := (others => (others => 0));
+signal B_row: input_array(0 to N-1) := (others => 0);
 signal CalcDone: std_logic;
 begin 
+    --addsig <= (others => (others => 0));
+    --mliers <= (others => (others => 0));
     --ProcElement: for i in 0 to N generate
     --    ProcEl: for j in 0 to N generate
 
@@ -57,8 +60,44 @@ begin
     --        end generate;  
     --end generate;
     --Need to work on getting the generate statements to work sometime soon. Generic would come in handy for this. 
-
-  --PEXX: PE port map (load, clr, clk, Mcand , Multiplier , Add IN     , Multiplyout, Sum out    );
+    --init_loop1: for i in 0 to 3 generate
+    --    init_loop2: for j in 0 to 3 generate
+    --        addSig(i,j) <= 0;
+    --       mliers(i,j) <= 0;
+    --    end generate; 
+    --end generate;
+    process(clk)
+    variable in_cnt: integer := 0;
+    variable Cycle_Count: integer range 0 to (3*N - 1) := 0;
+    --variable run_count: integer := 0;
+    begin
+        --if(run_count = 0) then
+        --for i in 0 to 3 loop
+        --        for j in 0 to 3 loop
+        --            addSig(i,j) <= 0;
+        --            mliers(i,j) <= 0;
+        --        end loop; 
+        --end loop;
+        --    run_count := run_count + 1; 
+        --elsif(rising_edge(clk)) then 
+        if(rising_edge(clk)) then
+            if(Calc_Start = '1' and in_cnt /= N) then
+                for i in 0 to N-1 loop
+                    B_row(i) <= B(i, in_cnt);
+                end loop;
+                in_cnt := in_cnt + 1;
+            end if;
+            if(Cycle_Count = (3*N - 1)) then 
+                    CalcDone <= '1';
+            else 
+                    CalcDone <= '0';
+                    Cycle_Count := Cycle_Count + 1;
+            end if;
+            --run_count := 1;
+        end if;
+    end process;
+    
+    --PEXX: PE port map (load, clr, clk, Mcand , Multiplier , Add IN     , Multiplyout, Sum out    );
     PE00: PE port map (load, clr, clk, A(0,0), B_row(0), 0, mliers(0,0), addsig(0,0));
     PE01: PE port map (load, clr, clk, A(0,1), mliers(0,0), 0, mliers(0,1), addsig(0,1));
     PE02: PE port map (load, clr, clk, A(0,2), mliers(0,1), 0, mliers(0,2), addsig(0,2));
@@ -84,33 +123,5 @@ begin
     AC1: accumulator generic map(1, 4) port map (load, clr, clk, CalcDone, Calc_Start, addsig(3,1), open);
     AC2: accumulator generic map(2, 4) port map (load, clr, clk, CalcDone, Calc_Start, addsig(3,2), open);
     AC3: accumulator generic map(3, 4) port map (load, clr, clk, CalcDone, Calc_Start, addsig(3,3), open);
-    
-    
-    process(clk)
-    variable in_cnt: integer := 0;
-    variable Cycle_Count: integer := 0;
-    begin
-        --if(in_cnt = 0 and Cycle_Count = 0) then
-        --    for i in 0 to 3 loop
-        --        for j in 0 to 3 loop
-        --            addSig(i,j) <= 0;
-        --            mliers(i,j) <= 0;
-        --        end loop; 
-        --    end loop;
-        --end if; 
-        if(rising_edge(clk)) then 
-            if(Calc_Start = '1' and in_cnt /= N) then
-                for i in 0 to N-1 loop
-                    B_row(i) <= B(i, in_cnt);
-                end loop;
-                in_cnt := in_cnt + 1;
-            end if;
-            if(Cycle_Count = (3*N - 2)) then 
-                    CalcDone <= '1';
-            end if;
-            Cycle_Count := Cycle_Count + 1;
-        end if;
-    end process;
 
 end Structure;
-

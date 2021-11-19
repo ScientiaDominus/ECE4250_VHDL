@@ -21,12 +21,10 @@ architecture Structure of PE is
             MandReg := 0;
             MierReg := 0;
         elsif rising_edge(clk) then
-            if load = '1' then
-                MandReg := Mcand;
-                MierReg := Mlier;
-            end if;
-            Mout <= MierReg;
-            Multiplied := MandReg * MierReg;
+            MandReg := Mcand;
+            MierReg := Mlier;
+            Mout <= Mlier;
+            Multiplied := Mcand * Mlier;
             AddReg := addIn + Multiplied;
             Sout <= AddReg;
         end if; 
