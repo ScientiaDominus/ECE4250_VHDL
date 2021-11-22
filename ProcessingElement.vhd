@@ -10,27 +10,27 @@ entity PE is
 end PE;
 
 architecture Structure of PE is
-    signal AddReg: integer;
+    --signal AddReg: integer;
     begin
     process(clk, clr)
     variable MandReg: integer := 0;
     variable MierReg: integer := 0;
     variable Multiplied: integer := 0;
-    --variable AddReg: integer := 0;
+    variable AddReg: integer := 0;
         begin
         if clr = '1' then
             MandReg := 0;
             MierReg := 0;
             Multiplied := 0;
-            AddReg <= 0;
+            AddReg := 0;
             Mout <= 0;
             Sout <= 0;
         elsif rising_edge(clk) then
             MandReg := Mcand;
             MierReg := Mlier;
-            Mout <= Mlier;
             Multiplied := Mcand * Mlier;
-            AddReg <= addIn + Multiplied;
+            AddReg := addIn + Multiplied;
+            Mout <= Mlier;
             Sout <= AddReg;
         end if; 
     end process;

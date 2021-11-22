@@ -45,75 +45,40 @@ component accumulator is
     );
 end component;
 
-signal addsig: ADDS(0 to N-1, 0 to N-1) := (others => (others => 0)); --Figure out how to get the inititialization for these values down. 
-signal mliers: ADDS(0 to N-1, 0 to N-1) := (others => (others => 0));
+signal addsig: ADDS(0 to N-1, 0 to N-1); --:= (others => (others => 0)); --Figure out how to get the inititialization for these values down. 
+signal mliers: ADDS(0 to N-1, 0 to N-1); --:= (others => (others => 0));
 signal B_row: input_array(0 to N-1) := (others => 0);
 signal CalcDone: std_logic;
 begin 
-    --addsig <= (others => (others => 0));
-    --mliers <= (others => (others => 0));
-    --ProcElement: for i in 0 to N generate
-    --    ProcEl: for j in 0 to N generate
-
-    --        PER1_i: PE port map(load, clr, clk, A(i), B(j), Sout(i-1)(j), Mlier(i)(j+1) , addIn(i+1)(j)); --Figure out how to get this generate statement to work. Maybe have to hard code a couple of them.
-        
-    --        end generate;  
-    --end generate;
-    --Need to work on getting the generate statements to work sometime soon. Generic would come in handy for this. 
-    --init_loop1: for i in 0 to 3 generate
-    --    init_loop2: for j in 0 to 3 generate
-    --        addSig(i,j) <= 0;
-    --       mliers(i,j) <= 0;
-    --    end generate; 
-    --end generate;
     process(clk)
     variable in_cnt: integer := 0;
     variable Cycle_Count: integer range 0 to (3*N - 1) := 0;
     --variable run_count: integer := 0;
     begin
-        --if(run_count = 0) then
-        --for i in 0 to 3 loop
-        --        for j in 0 to 3 loop
-        --            addSig(i,j) <= 0;
-        --            mliers(i,j) <= 0;
-        --        end loop; 
-        --end loop;
-        --    run_count := run_count + 1; 
-        --elsif(rising_edge(clk)) then 
-        if(rising_edge(clk)) then
-            --Calc_Start = '1' and 
-            if(in_cnt <= (2*N - 1) and clr = '0') then
-                --for i in N-1 downto 0 loop
-                --    B_row(N - 1 - i) <= B(in_cnt, i);
-                --end loop;
-                --in_cnt := in_cnt + 1;
-                --for i in (2*N - 1) downto 0 loop
-                    if(in_cnt <= (N - 1)) then
+        if(rising_edge(clk)) then 
+            if(in_cnt <= (2*N - 1) and clr = '0') then -- This works in place of a for loop. This overarching if statement includes the algorithm for staggering the input matrix. 
+                    if(in_cnt <= (N - 1)) then --check if the in_cnt variable is below a certain point in the algorithm (It switches to another for loop when this occurs)
                         for j in 0 to in_cnt  loop
-                            B_row(j) <= B(0+j, (N-1) - in_cnt + j);
+                            B_row(j) <= B(0+j, (N-1) - in_cnt + j); --This statement ensures that the for loop will stagger the inputs of the matrix as intended
                         end loop;
-                        --for h in in_cnt to N-1 loop
-                        --    B_row(h) <= 0;
-                        --end loop;
-                    elsif(in_cnt <= (2*N - 1) and in_cnt > (N-1)) then 
+                    elsif(in_cnt <= (2*N - 1) and in_cnt > (N-1)) then --check if the in_cnt variable has counted N cycles, here the algorithm shifts 
                         for k in (N-1) downto (in_cnt-(N-1)) loop
-                            B_row(k) <= B(0+k, (N-1) - (in_cnt - k));
+                            B_row(k) <= B(0+k, (N-1) - (in_cnt - k)); -- This statement makes sure that the second half of the staggered matrix is aligned correctly
                         end loop;
-                        for h in 0 to in_cnt - N loop
-                            B_row(h) <= 0;
+                        for h in 0 to in_cnt - N loop 
+                            B_row(h) <= 0; --This statement fills in the zeroes that to allow for proper calculations
                         end loop;
                     end if;
-                    in_cnt := in_cnt + 1;
-                --end loop; 
-            elsif (in_cnt >= (2*N - 1) and clr = '0') then
+                    in_cnt := in_cnt + 1; --increment in_cnt 
+            elsif (in_cnt >= (2*N - 1) and clr = '0') then --once the calculations have completed fill the remaining values with 0.
                 for i in 0 to N-1 loop
                     B_row(i) <= 0;
                 end loop;
             end if;
-            if(Cycle_Count = (3*N - 1)) then 
-                    CalcDone <= '1';
-            elsif (clr = '0' and Calc_Start = '1') then
-                    CalcDone <= '0';
+            if(Cycle_Count = (3*N - 1)) then --when the total number of cycles required to calculate the result have passed then switch to CalcDone
+                    CalcDone <= '1'; 
+            elsif (clr = '0' and Calc_Start = '1') then --if the total number of cycles is less than the required amount then set CalcDone to 0 and increment cycle count
+                    CalcDone <= '0'; 
                     Cycle_Count := Cycle_Count + 1;
             end if;
             --run_count := 1;
@@ -134,7 +99,7 @@ begin
     PE20: PE port map (load, clr, clk, A(2,0), B_row(2), addsig(1,0), mliers(2,0), addsig(2,0));
     PE21: PE port map (load, clr, clk, A(2,1), mliers(2,0), addsig(1,1), mliers(2,1), addsig(2,1));
     PE22: PE port map (load, clr, clk, A(2,2), mliers(2,1), addsig(1,2), mliers(2,2), addsig(2,2));
-    PE23: PE port map (load, clr, clk, A(2,3), mliers(2,2), addsig(1,2), mliers(2,3), addsig(2,3));
+    PE23: PE port map (load, clr, clk, A(2,3), mliers(2,2), addsig(1,3), mliers(2,3), addsig(2,3));
 
     PE30: PE port map (load, clr, clk, A(3,0), B_row(3), addsig(2,0), mliers(3,0), addsig(3,0));
     PE31: PE port map (load, clr, clk, A(3,1), mliers(3,0), addsig(2,1), mliers(3,1), addsig(3,1));
