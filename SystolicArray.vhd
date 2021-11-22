@@ -81,19 +81,38 @@ begin
         --    run_count := run_count + 1; 
         --elsif(rising_edge(clk)) then 
         if(rising_edge(clk)) then
-            if(Calc_Start = '1' and in_cnt /= N and clr = '0') then
-                for i in 0 to N-1 loop
-                    B_row(i) <= B(i, in_cnt);
-                end loop;
-                in_cnt := in_cnt + 1;
-            elsif (Calc_Start = '1' and in_cnt >= N and clr = '0') then
+            --Calc_Start = '1' and 
+            if(in_cnt <= (2*N - 1) and clr = '0') then
+                --for i in N-1 downto 0 loop
+                --    B_row(N - 1 - i) <= B(in_cnt, i);
+                --end loop;
+                --in_cnt := in_cnt + 1;
+                --for i in (2*N - 1) downto 0 loop
+                    if(in_cnt <= (N - 1)) then
+                        for j in 0 to in_cnt  loop
+                            B_row(j) <= B(0+j, (N-1) - in_cnt + j);
+                        end loop;
+                        --for h in in_cnt to N-1 loop
+                        --    B_row(h) <= 0;
+                        --end loop;
+                    elsif(in_cnt <= (2*N - 1) and in_cnt > (N-1)) then 
+                        for k in (N-1) downto (in_cnt-(N-1)) loop
+                            B_row(k) <= B(0+k, (N-1) - (in_cnt - k));
+                        end loop;
+                        for h in 0 to in_cnt - N loop
+                            B_row(h) <= 0;
+                        end loop;
+                    end if;
+                    in_cnt := in_cnt + 1;
+                --end loop; 
+            elsif (in_cnt >= (2*N - 1) and clr = '0') then
                 for i in 0 to N-1 loop
                     B_row(i) <= 0;
                 end loop;
             end if;
             if(Cycle_Count = (3*N - 1)) then 
                     CalcDone <= '1';
-            elsif (clr = '0') then
+            elsif (clr = '0' and Calc_Start = '1') then
                     CalcDone <= '0';
                     Cycle_Count := Cycle_Count + 1;
             end if;

@@ -13,7 +13,7 @@ entity accumulator is
 end accumulator;
 
 architecture Structure of accumulator is
-type int_array is array(0 to (3*N - 2)) of integer;
+type int_array is array(0 to (2*N - 1)) of integer;
 signal AccArray: int_array;
 begin
 process(clk)
@@ -23,7 +23,7 @@ process(clk)
     --variable AccArray: int_array;
     begin
     if (run_counter = 0) then
-        for i in (3*N -2) downto 0 loop
+        for i in (2*N -1) downto 0 loop
             AccArray(i) <= 0;
         end loop; 
         run_counter := run_counter + 1;
@@ -32,7 +32,7 @@ process(clk)
 
         if(CalcDone = '1') then 
             if (shift_counter < index) then
-                for i in (3*N - 2) downto 0 loop
+                for i in (2*N - 1) downto 0 loop
                     if(i = 0) then 
                         AccArray(i) <= 0;
                     else 
@@ -42,7 +42,7 @@ process(clk)
             end if;
             shift_counter := shift_counter + 1;
         elsif(Calc_Start = '1' and CalcDone = '0') then
-            for i in (3*N - 2) downto 0 loop
+            for i in (2*N - 1) downto 0 loop
                 if(i = 0) then
                     AccArray(i) <= InValue;
                 else 
@@ -50,7 +50,7 @@ process(clk)
                 end if;
             end loop; -- clocked loop for calculations
         end if;
-        OutValue <= AccArray((3*N-2));
+        OutValue <= AccArray((2*N-1));
         run_counter := 1;
     end if;
 end process;
