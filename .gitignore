@@ -5,6 +5,10 @@
 
 *.bak
 transcript
+work/
+*.mti
+*.mpf
+*.wlf
 
 # User-specific files
 *.rsuser
