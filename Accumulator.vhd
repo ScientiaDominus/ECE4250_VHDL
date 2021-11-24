@@ -8,7 +8,8 @@ entity accumulator is
     port(
         load, clr, clk, CalcDone, Calc_Start: in std_logic;
         InValue: in integer;
-        OutValue: out integer
+        OutValue: out integer;
+        StoreDone: out std_logic
     );
 end accumulator;
 
@@ -39,8 +40,10 @@ process(clk)
                         AccArray(i) <= AccArray(i - 1);
                     end if;
                 end loop; -- shiftloop
+                shift_counter := shift_counter + 1;
+            elsif(shift_counter = index) then
+                StoreDone <= '1';
             end if;
-            shift_counter := shift_counter + 1;
         elsif(Calc_Start = '1' and CalcDone = '0') then
             for i in (2*N - 1) downto 0 loop
                 if(i = 0) then

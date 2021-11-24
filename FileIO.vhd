@@ -3,10 +3,11 @@ use IEEE.std_logic_1164.all;
 use ieee.numeric_std.all;
 use std.textio.all;
 use ieee.std_logic_textio.all;
+use work.array_type.all;
+
 
 entity testBench is
 end testBench;
-
 
 architecture internals of testBench is
 
@@ -14,15 +15,19 @@ constant N : integer := 4;
 -- https://www.ics.uci.edu/~jmoorkan/vhdlref/arrays.html
 type t_matrix is array(0 to (N-1), 0 to (N-1)) of integer;
 
+signal MemCheck, clk: std_logic;
 signal matrix1: t_matrix;
 signal matrix2: t_matrix;
 signal resultMatrix: t_matrix;
 
--- ************* TO DO *****************
---component systolicArray is
--- port map here
---end component systolicArray;
--- ^^^^^^^^^^^^^ TO DO ^^^^^^^^^^^^^^^^^^
+component top is 
+	generic(N: integer range 0 to 255 := 4);
+	port(
+		Mem_Check, clk: in std_logic;
+		activations, weights: in input_mtx(0 to (N-1), 0 to (N-1));
+		result: out input_mtx(0 to (N-1), 0 to (N-1))
+	);
+end component;
 
 begin
 process is
@@ -53,17 +58,21 @@ begin
 			matrix2(i,j) <= mtx2_elem;
 		end loop;
 	end loop;
-	wait for 10 ps;								-- delay here that we may want to change
-	for i in 0 to (N-1) loop
-		for j in 0 to (N-1) loop
+	wait for 10 ps;
+
+	MemCheck <= '1';							-- delay here that we may want to change
+	
+	--for i in 0 to (N-1) loop
+	--	for j in 0 to (N-1) loop
 			-- this is just a test bit. Addition of each element
-			resultMatrix(i,j) <= matrix1(i,j) + matrix2(i,j);
-			wait for 1 ps;						-- delay here that we may want to change
-			write(result_line, resultMatrix(i,j));
-			write(result_line, ' ');
-		end loop;
-		writeline(file_resultMatrix, result_line);
-	end loop;
-	wait;
+	--		resultMatrix(i,j) <= matrix1(i,j) + matrix2(i,j);
+	--		wait for 1 ps;						-- delay here that we may want to change
+	--		write(result_line, resultMatrix(i,j));
+	--		write(result_line, ' ');
+	--	end loop;
+	--	writeline(file_resultMatrix, result_line);
+	--end loop;
+	--wait;
 end process;
+	TP00: top port map (MemCheck, clk, matrix1, matrix2, resultMatrix);
 end internals;

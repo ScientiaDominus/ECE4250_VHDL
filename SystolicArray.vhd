@@ -22,7 +22,9 @@ entity SystolicArray is
     port(
         load, clr, clk, Calc_Start: in std_logic;
         A: in input_mtx(0 to N-1,0 to N-1);
-        B: in input_mtx(0 to N-1,0 to N-1)
+        B: in input_mtx(0 to N-1,0 to N-1);
+        C: out input_mtx(0 to (N-1), 0 to (N-1));
+        StoreDone: out std_logic
             );
 end SystolicArray;
 
@@ -41,16 +43,19 @@ component accumulator is
     port(
         load, clr, clk, CalcDone, Calc_Start: in std_logic;
         InValue: in integer;
-        OutValue: out integer
+        OutValue: out integer;
+        StoreDone: out std_logic
     );
 end component;
 
 signal addsig: ADDS(0 to N-1, 0 to N-1); --:= (others => (others => 0)); --Figure out how to get the inititialization for these values down.
 signal mliers: ADDS(0 to N-1, 0 to N-1); --:= (others => (others => 0));
 signal B_row: input_array(0 to N-1) := (others => 0);
+signal SD_Array: std_logic_vector(0 to N-1) := (others => '0');
 signal CalcDone: std_logic;
 begin
     process(clk)
+    variable store_counter: integer := 0;
     variable in_cnt: integer := 0;
     variable Cycle_Count: integer range 0 to (3*N - 1) := 0;
     --variable run_count: integer := 0;
@@ -75,8 +80,18 @@ begin
                     B_row(i) <= 0;
                 end loop;
             end if;
-            if(Cycle_Count = (3*N - 1)) then --when the total number of cycles required to calculate the result have passed then switch to CalcDone
+            if(Cycle_Count >= (3*N - 1)) then --when the total number of cycles required to calculate the result have passed then switch to CalcDone
                     CalcDone <= '1';
+                    store_counter := 0;
+                    for i in 0 to (N-1) loop
+                        if(SD_Array(i) = '0') then 
+                            StoreDone <= '0';
+                        elsif (SD_Array(i) = '1') then
+                            store_counter := store_counter +1;
+                        elsif (store_counter = (N-1)) then 
+                            StoreDone <= '1';
+                        end if;
+                    end loop; 
             elsif (clr = '0' and Calc_Start = '1') then --if the total number of cycles is less than the required amount then set CalcDone to 0 and increment cycle count
                     CalcDone <= '0';
                     Cycle_Count := Cycle_Count + 1;
@@ -103,7 +118,7 @@ begin
 
     --Accumulators for Matrix Storage.
     AC: for x in 0 to (N-1) generate
-        AC_x: accumulator generic map(x, N) port map (load, clr, clk, CalcDone, Calc_Start, addsig((N-1),x), open);
+        AC_x: accumulator generic map(x, N) port map (load, clr, clk, CalcDone, Calc_Start, addsig((N-1),x), open, SD_Array(x));
     end generate AC;
 
 end Structure;
