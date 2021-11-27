@@ -16,12 +16,12 @@ constant N : integer := 4;
 type t_matrix is array(0 to (N-1), 0 to (N-1)) of integer;
 
 signal MemCheck, clk: std_logic;
-signal matrix1: t_matrix;
-signal matrix2: t_matrix;
-signal resultMatrix: t_matrix;
+signal matrix1: input_mtx(0 to (N-1), 0 to (N-1));
+signal matrix2: input_mtx(0 to (N-1), 0 to (N-1));
+signal resultMatrix: input_mtx(0 to (N-1), 0 to (N-1));
 
 component top is 
-	generic(N: integer range 0 to 255 := 4);
+	generic(N: integer range 0 to 255);
 	port(
 		Mem_Check, clk: in std_logic;
 		activations, weights: in input_mtx(0 to (N-1), 0 to (N-1));
@@ -38,9 +38,12 @@ process is
 
 
 	-- Will need to change the file path here or make it a constant or something
-	file file_matrix1: text open read_mode is "C:\Users\mrf\Documents\`Classes\ECE 4250 - VHDL & Devices\Project\ECE4250_VHDL\input_matrix_1.txt";
-	file file_matrix2: text open read_mode is "C:\Users\mrf\Documents\`Classes\ECE 4250 - VHDL & Devices\Project\ECE4250_VHDL\input_matrix_2.txt";
-	file file_resultMatrix: text open write_mode is "C:\Users\mrf\Documents\`Classes\ECE 4250 - VHDL & Devices\Project\ECE4250_VHDL\output_matrix.txt";
+	--file file_matrix1: text open read_mode is "C:\Users\mrf\Documents\`Classes\ECE 4250 - VHDL & Devices\Project\ECE4250_VHDL\input_matrix_1.txt";
+	--file file_matrix2: text open read_mode is "C:\Users\mrf\Documents\`Classes\ECE 4250 - VHDL & Devices\Project\ECE4250_VHDL\input_matrix_2.txt";
+	file file_matrix1: text open read_mode is "B:\SPB_Data\ECE4250_VHDL\input_matrix_1.txt";
+	file file_matrix2: text open read_mode is "B:\SPB_Data\ECE4250_VHDL\input_matrix_2.txt";
+	--file file_resultMatrix: text open write_mode is "C:\Users\mrf\Documents\`Classes\ECE 4250 - VHDL & Devices\Project\ECE4250_VHDL\output_matrix.txt";
+	file file_resultMatrix: text open write_mode is "output_matrix.txt";
 
 	variable in_line_mtx1, in_line_mtx2: line;
 	variable result_line: line;
@@ -73,6 +76,7 @@ begin
 	--	writeline(file_resultMatrix, result_line);
 	--end loop;
 	--wait;
+	wait;
 end process;
-	TP00: top port map (MemCheck, clk, matrix1, matrix2, resultMatrix);
+	TP00: top generic map(4) port map (MemCheck, clk, matrix1, matrix2, resultMatrix);
 end internals;

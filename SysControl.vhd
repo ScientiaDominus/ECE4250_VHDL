@@ -12,7 +12,7 @@ entity StateMachine is
 end StateMachine;
 
 architecture structure of StateMachine is
-signal State: integer range 0 to 2 := 0;
+signal State: integer range 0 to 4 := 0;
 begin 
 	process(CLK)
 	begin
@@ -41,7 +41,7 @@ begin
 		else '0';
 	clear_mem <= '1' when (State = 2)
 		else '0';
-	Calc_Start <= '1' when (State = 3) and (CalcDone = '0')
+	Calc_Start <= '1' when (State = 3)
 		else '0';
 	Store_Mem <= '1' when (State = 4) and (StoreDone = '0')
 		else '0';

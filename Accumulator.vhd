@@ -6,7 +6,7 @@ entity accumulator is
     generic(index: integer range 0 to 255;
             N: integer range 0 to 255);
     port(
-        load, clr, clk, CalcDone, Calc_Start: in std_logic;
+        load, clr, clk, CalcDone, Calc_Start, ShiftOnce: in std_logic;
         InValue: in integer;
         OutValue: out integer;
         StoreDone: out std_logic
@@ -14,7 +14,7 @@ entity accumulator is
 end accumulator;
 
 architecture Structure of accumulator is
-type int_array is array(0 to (2*N - 1)) of integer;
+type int_array is array(0 to (2*N -1)) of integer;
 signal AccArray: int_array;
 begin
 process(clk)
@@ -31,9 +31,9 @@ process(clk)
     elsif clk'event and clk = '1' then 
         --shift_amount := (N - ((N) - index)); 
 
-        if(CalcDone = '1') then 
+        if(CalcDone = '1' and ShiftOnce /= '1') then 
             if (shift_counter < index) then
-                for i in (2*N - 1) downto 0 loop
+                for i in (2*N -1) downto 0 loop
                     if(i = 0) then 
                         AccArray(i) <= 0;
                     else 
@@ -45,13 +45,21 @@ process(clk)
                 StoreDone <= '1';
             end if;
         elsif(Calc_Start = '1' and CalcDone = '0') then
-            for i in (2*N - 1) downto 0 loop
+            for i in (2*N -1) downto 0 loop
                 if(i = 0) then
                     AccArray(i) <= InValue;
                 else 
                     AccArray(i) <= AccArray(i - 1);
                 end if;
             end loop; -- clocked loop for calculations
+        elsif(shiftOnce = '1') then 
+            for i in (2*N - 1) downto 0 loop
+                if(i = 0) then
+                    AccArray(i) <= InValue;
+                else 
+                    AccArray(i) <= AccArray(i - 1);
+                end if;
+            end loop;
         end if;
         OutValue <= AccArray((2*N-1));
         run_counter := 1;
