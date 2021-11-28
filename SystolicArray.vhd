@@ -118,6 +118,7 @@ begin
                 Cycle_Count := Cycle_Count + 1;
             end if;
             --run_count := 1;
+            Calc_Done <= CalcDone;
         end if;
     end process;
 
