@@ -68,11 +68,11 @@ begin
             if(in_cnt <= (2*N - 1) and clr = '0' and Calc_Start = '1') then -- This works in place of a for loop. This overarching if statement includes the algorithm for staggering the input matrix.
                     if(in_cnt <= (N - 1)) then --check if the in_cnt variable is below a certain point in the algorithm (It switches to another for loop when this occurs)
                         for j in 0 to in_cnt  loop
-                            B_row(j) <= B(in_cnt - j, j); --updated version of this line properly staggers and inserts the matrix
+                            B_row(j) <= B(j, in_cnt - j); --updated version of this line properly staggers and inserts the matrix
                         end loop;
                     elsif(in_cnt <= (2*N - 1) and in_cnt > (N-1)) then --check if the in_cnt variable has counted N cycles, here the algorithm shifts
                         for k in (N-1) downto (in_cnt-(N-1)) loop
-                            B_row(k) <= B(in_cnt - k, k); --updated version of this line properly staggers and inserts the matrix
+                            B_row(k) <= B( k, in_cnt - k); --updated version of this line properly staggers and inserts the matrix
                         end loop;
                         for h in 0 to in_cnt - N loop
                             B_row(h) <= 0; --This statement fills in the zeroes that to allow for proper calculations
@@ -105,7 +105,9 @@ begin
                         shift_Once <= '1';
                     --for i in 0 to (N-1) loop
                         for j in 0 to (N-1) loop
-                            C(shiftstore-1,j) <= out_row(j);
+                            C(j,(shiftstore-1)) <= out_row(j);
+                            --j,(N-1) - (shiftstore-1)
+                            --shiftstore-1,j
                         end loop;
                     --end loop;
                     elsif(shiftstore >= N) then
@@ -129,11 +131,11 @@ begin
 
     -- PE i,j
     PEI: for i in 1 to (N-1) generate
-        PE_i_0: PE port map (load, clr, clk, A(i,0), B_row(i), addsig((i-1),0), mliers(i,0), addsig(i,0));  -- PE i,0
-        PE_0_j: PE port map (load, clr, clk, A(0,i), mliers(0,(i-1)), 0, mliers(0,i), addsig(0,i));         -- PE 0,j
+        PE_i_0: PE port map (load, clr, clk, A(0,i), B_row(i), addsig((i-1),0), mliers(i,0), addsig(i,0));  -- PE i,0
+        PE_0_j: PE port map (load, clr, clk, A(i,0), mliers(0,(i-1)), 0, mliers(0,i), addsig(0,i));         -- PE 0,j
         
         PEJ: for j in 1 to (N-1) generate
-            PE_i_j: PE port map (load, clr, clk, A(i,j), mliers(i,(j-1)), addsig((i-1),j), mliers(i,j), addsig(i,j));
+            PE_i_j: PE port map (load, clr, clk, A(j,i), mliers(i,(j-1)), addsig((i-1),j), mliers(i,j), addsig(i,j));
         end generate PEJ;
     end generate PEI;
 
