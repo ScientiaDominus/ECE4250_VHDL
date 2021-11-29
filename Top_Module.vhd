@@ -6,7 +6,7 @@ use ieee.math_real.all;
 use work.array_type.all;
 
 entity top is 
-    generic(N: integer range 0 to 255);
+    generic(N: integer range 0 to 256);
     port(
         Mem_Check, clk: in std_logic;
         activations, weights: in input_mtx(0 to (N-1), 0 to (N-1));
@@ -17,7 +17,7 @@ end top;
 architecture Structure of top is 
 --Systolic Array Component
 component SystolicArray is
-    generic(N: integer range 0 to 255);
+    generic(N: integer range 0 to 256);
     port(
         load, clr, clk, Calc_Start: in std_logic;
         A: in input_mtx(0 to N-1,0 to N-1);
@@ -42,8 +42,8 @@ component PE is
 end component;
 --Accumulator component, this is not used in this file but is included for demonstration purposes. 
 component accumulator is 
-    generic(index: integer range 0 to 255;
-            N: integer range 0 to 255);
+    generic(index: integer range 0 to 256;
+            N: integer range 0 to 256);
     port(
         load, clr, clk, CalcDone, Calc_Start: in std_logic;
         InValue: in integer;

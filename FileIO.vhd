@@ -11,7 +11,7 @@ end testBench;
 
 architecture internals of testBench is
 
-constant N : integer := 4;
+constant N : integer := 256;
 -- https://www.ics.uci.edu/~jmoorkan/vhdlref/arrays.html
 type t_matrix is array(0 to (N-1), 0 to (N-1)) of integer;
 
@@ -21,7 +21,7 @@ signal matrix2: input_mtx(0 to (N-1), 0 to (N-1));
 signal resultMatrix: input_mtx(0 to (N-1), 0 to (N-1));
 
 component top is 
-	generic(N: integer range 0 to 255);
+	generic(N: integer range 0 to 256);
 	port(
 		Mem_Check, clk: in std_logic;
 		activations, weights: in input_mtx(0 to (N-1), 0 to (N-1));
@@ -78,5 +78,5 @@ begin
 	--wait;
 	wait;
 end process;
-	TP00: top generic map(4) port map (MemCheck, clk, matrix1, matrix2, resultMatrix);
+	TP00: top generic map(N) port map (MemCheck, clk, matrix1, matrix2, resultMatrix);
 end internals;

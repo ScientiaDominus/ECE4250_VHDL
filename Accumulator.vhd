@@ -3,8 +3,8 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
 entity accumulator is 
-    generic(index: integer range 0 to 255;
-            N: integer range 0 to 255);
+    generic(index: integer range 0 to 256;
+            N: integer range 0 to 256);
     port(
         load, clr, clk, CalcDone, Calc_Start, ShiftOnce: in std_logic;
         InValue: in integer;

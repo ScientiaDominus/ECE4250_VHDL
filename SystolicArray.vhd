@@ -18,7 +18,7 @@ use ieee.math_real.all;
 use work.array_type.all;
 
 entity SystolicArray is
-    generic(N: integer range 0 to 255 := 4);
+    generic(N: integer range 0 to 256);
     port(
         load, clr, clk, Calc_Start: in std_logic;
         A: in input_mtx(0 to N-1,0 to N-1);
@@ -39,8 +39,8 @@ component PE is
 end component;
 
 component accumulator is
-    generic(index: integer range 0 to 255;
-            N: integer range 0 to 255);
+    generic(index: integer range 0 to 256;
+            N: integer range 0 to 256);
     port(
         load, clr, clk, CalcDone, Calc_Start, ShiftOnce: in std_logic;
         InValue: in integer;
