@@ -10,7 +10,8 @@ entity top is
     port(
         Mem_Check, clk: in std_logic;
         activations, weights: in input_mtx(0 to (N-1), 0 to (N-1));
-        result: out input_mtx(0 to (N-1), 0 to (N-1))
+        result: out input_mtx(0 to (N-1), 0 to (N-1));
+	StoreD: out std_logic
     );
 end top;
 
@@ -51,17 +52,17 @@ component accumulator is
         StoreDone: out std_logic
     );
 end component;
-signal Calc_Done, 
-       Store_Done,
+signal Calc_Done,
+       Store_Done, 
        LoadMem, 
        CalcStart,
        StoreMem,
        ClearMem: std_logic;
 begin
+    StoreD <= Store_Done;
     process(clk)
     begin
         if clk'event and clk = '1' then
-            
         end if;
     end process;
 

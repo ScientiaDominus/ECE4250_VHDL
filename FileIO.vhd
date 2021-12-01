@@ -19,13 +19,16 @@ signal MemCheck, clk: std_logic;
 signal matrix1: input_mtx(0 to (N-1), 0 to (N-1));
 signal matrix2: input_mtx(0 to (N-1), 0 to (N-1));
 signal resultMatrix: input_mtx(0 to (N-1), 0 to (N-1));
+signal StoreDone: std_logic := '0';
+signal writeDone: std_logic := '0';
 
 component top is 
 	generic(N: integer range 0 to 256);
 	port(
 		Mem_Check, clk: in std_logic;
 		activations, weights: in input_mtx(0 to (N-1), 0 to (N-1));
-		result: out input_mtx(0 to (N-1), 0 to (N-1))
+		result: out input_mtx(0 to (N-1), 0 to (N-1));
+		StoreD: out std_logic
 	);
 end component;
 
@@ -40,10 +43,10 @@ process is
 	-- Will need to change the file path here or make it a constant or something
 	--file file_matrix1: text open read_mode is "C:\Users\mrf\Documents\`Classes\ECE 4250 - VHDL & Devices\Project\ECE4250_VHDL\input_matrix_1.txt";
 	--file file_matrix2: text open read_mode is "C:\Users\mrf\Documents\`Classes\ECE 4250 - VHDL & Devices\Project\ECE4250_VHDL\input_matrix_2.txt";
-	file file_matrix1: text open read_mode is "B:\SPB_Data\ECE4250_VHDL\input_matrix_1.txt";
-	file file_matrix2: text open read_mode is "B:\SPB_Data\ECE4250_VHDL\input_matrix_2.txt";
+	file file_matrix2: text open read_mode is "C:\Users\cky39v\Desktop\work\input_matrix_1.txt";
+	file file_matrix1: text open read_mode is "C:\Users\cky39v\Desktop\work\input_matrix_2.txt";
 	--file file_resultMatrix: text open write_mode is "C:\Users\mrf\Documents\`Classes\ECE 4250 - VHDL & Devices\Project\ECE4250_VHDL\output_matrix.txt";
-	file file_resultMatrix: text open write_mode is "output_matrix.txt";
+	file file_resultMatrix: text open write_mode is "C:\Users\cky39v\Desktop\work\output_matrix.txt";
 
 	variable in_line_mtx1, in_line_mtx2: line;
 	variable result_line: line;
@@ -61,22 +64,18 @@ begin
 			matrix2(i,j) <= mtx2_elem;
 		end loop;
 	end loop;
-	wait for 10 ps;
-
-	MemCheck <= '1';							-- delay here that we may want to change
-	
-	--for i in 0 to (N-1) loop
-	--	for j in 0 to (N-1) loop
-			-- this is just a test bit. Addition of each element
-	--		resultMatrix(i,j) <= matrix1(i,j) + matrix2(i,j);
-	--		wait for 1 ps;						-- delay here that we may want to change
-	--		write(result_line, resultMatrix(i,j));
-	--		write(result_line, ' ');
-	--	end loop;
-	--	writeline(file_resultMatrix, result_line);
-	--end loop;
-	--wait;
+	MemCheck <= '1';
+	wait until StoreDone = '1';							 
+		for i in 0 to (N-1) loop
+			for j in 0 to (N-1) loop
+				wait for 1 ns;						-- delay here that we may want to change
+				write(result_line, resultMatrix(i,j));
+				write(result_line, ' ');
+			end loop;
+			writeline(file_resultMatrix, result_line);
+		end loop;
+		writeDone <= '1';
 	wait;
 end process;
-	TP00: top generic map(N) port map (MemCheck, clk, matrix1, matrix2, resultMatrix);
+	TP00: top generic map(N) port map (MemCheck, clk, matrix1, matrix2, resultMatrix, StoreDone);
 end internals;

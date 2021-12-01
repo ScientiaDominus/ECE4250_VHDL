@@ -103,13 +103,9 @@ begin
                     shift_Once <= '1';
                     if(shiftstore <= N and shiftstore > 0) then
                         shift_Once <= '1';
-                    --for i in 0 to (N-1) loop
                         for j in 0 to (N-1) loop
                             C(j,(shiftstore-1)) <= out_row(j);
-                            --j,(N-1) - (shiftstore-1)
-                            --shiftstore-1,j
                         end loop;
-                    --end loop;
                     elsif(shiftstore >= N) then
                         shift_Once <= '0';
                     end if;
@@ -122,6 +118,11 @@ begin
             --run_count := 1;
             Calc_Done <= CalcDone;
         end if;
+	if(shiftstore >= N) then 
+		StoreDone <= '1';
+	else
+		StoreDone <= '0';
+	end if;
     end process;
 
     --PEXX: PE port map (load, clr, clk, Mcand , Multiplier , Add IN     , Multiplyout, Sum out    );
