@@ -6,17 +6,17 @@ use work.array_type.all;
 --This machine will be further implemented to use more than a couple bits for encoding. This will allow for multiple states to be encoded and
 --proper state machine implementation.
 
-entity StateMachine is 
+entity StateMachine is
 	port(MemCheck, CalcDone, StoreDone, CLK: in std_logic;
 		Load_Mem, Calc_Start, Store_Mem, clear_mem: out std_logic);
 end StateMachine;
 
 architecture structure of StateMachine is
 signal State: integer range 0 to 4 := 0;
-begin 
+begin
 	process(CLK)
 	begin
-		if CLK'event and CLK = '1' then 
+		if CLK'event and CLK = '1' then
 			case State is
 				when 0 => --Wait State, waits until memory has input matrices
 					if  MemCheck = '1' then State <= 1;
