@@ -45,3 +45,4 @@ For any multiplication of two matricies mtx1*mtx2 where mtx1 and mtx2 are both N
 
 
 ## Required Environment
+This project was simulated in Modelsim using Intels FPGA Starter Edition which is part of the Quartus Prime 20.1 Suite

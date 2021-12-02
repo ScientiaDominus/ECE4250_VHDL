@@ -50,20 +50,20 @@ component accumulator is
     );
 end component;
 
-signal addsig: ADDS(0 to N-1, 0 to N-1);                        -- (needs description)
-signal mliers: ADDS(0 to N-1, 0 to N-1);                        -- (needs description)
-signal B_row: input_array(0 to N-1) := (others => 0);           -- (needs description)
-signal SD_Array: std_logic_vector(0 to N-1) := (others => '0'); -- (needs description)
-signal out_row: input_array(0 to N-1) := (others => 0);         -- (needs description)
-signal CalcDone, AccStoreDone: std_logic;                       -- (needs description)
-signal shift_Once: std_logic := '0';                            -- (needs description)
+signal addsig: ADDS(0 to N-1, 0 to N-1);                        -- This set of signals connects all of the addin/sum out signals for each processing element. this can be seen as a grid of signals that the systolic array rests within
+signal mliers: ADDS(0 to N-1, 0 to N-1);                        -- This set of signals connects all of the Multiplier in/Multiplier out signals for each processing element. This can also be seen as a grid of signals that the systolic array rests within
+signal B_row: input_array(0 to N-1) := (others => 0);           -- This is a buffer row that takes the multipliers from the staggering algorithm. This feeds the systolic array with new multipliers every clock cycle
+signal SD_Array: std_logic_vector(0 to N-1) := (others => '0'); -- This is a row of std_logic values that signals the device when the storing algorithm has completed
+signal out_row: input_array(0 to N-1) := (others => 0);         -- This is a buffer row like B_row that takes the outputs of all the accumulators and feeds them into the storing algorithm every clock cyle that storing is needed
+signal CalcDone, AccStoreDone: std_logic;                       -- CalcDone signals the parent device when the actual calculation of the matrix is done, then AccStoreDone signals the parent device when the accumulators have shifted their values to the proper locations for storage
+signal shift_Once: std_logic := '0';                            -- This signal allows the accumulators to shift one row at a time to allow for out_row to be filled properly
 
 begin
     process(clk)
-    variable store_counter: integer := 0;                       -- (needs description)
-    variable shiftstore: integer := 0;                          -- (needs description)
-    variable in_cnt: integer := 0;                              -- (needs description)
-    variable Cycle_Count: integer range 0 to (3*N) := 0;        -- (needs description)
+    variable store_counter: integer := 0;                       -- This variable is used to keep track of the iterations of the loop that checks that the accumulators have finished shifting their values.
+    variable shiftstore: integer := 0;                          -- This variable is used to iterate through each element of the result matrix and store each out_row as the corresponding row in C (the result matrix)
+    variable in_cnt: integer := 0;                              -- This variable is used to keep track of the cycles that are used to feed B_row into the systolic array
+    variable Cycle_Count: integer range 0 to (3*N) := 0;        -- Cycle count counts the cycles after the calculation was started (Calc_Start went to 1)
     --variable run_count: integer := 0;
     begin
         if(rising_edge(clk)) then
@@ -96,27 +96,27 @@ begin
                 CalcDone <= '1';
                 store_counter := 0;
 
-                for i in 0 to (N-1) loop
-                    if(SD_Array(i) = '0') then
-                        AccStoreDone <= '0';
-                    elsif (SD_Array(i) = '1') then
-                        store_counter := store_counter +1;
-                    elsif (store_counter = (N-1)) then
-                        AccStoreDone <= '1';
+                for i in 0 to (N-1) loop                        -- This for loop ensures that the accumulators have shifted all of the information from the systolic array 
+                    if(SD_Array(i) = '0') then                  -- To do this the program has an array of std_logic values called SD_Array, this is short for StoreDone array.
+                        AccStoreDone <= '0';                    -- Each element of SD_Array is mapped directly to the storedone output in its corresponding accumulator.
+                    elsif (SD_Array(i) = '1') then              -- This for loop then checks if all of those values have gone to 1. When this occurs the loop sets the shift once
+                        store_counter := store_counter +1;      -- signal to 1, This signals the accumulators to shift the values by a single value. This will
+                    elsif (store_counter = (N-1)) then          -- ensure that the result matrix from multiplication is in the proper format for reading out later. 
+                        AccStoreDone <= '1';                    -- This loop will only change AccStoreDone value and shift_Once when it detects that all accumulators have shifted.
                         shift_Once <= '1';
                     end if;
                 end loop;
 
-                if(AccStoreDone = '1') then
-                    shift_Once <= '1';
+                if(AccStoreDone = '1') then                     -- Check that the accumulators have finished storing. Then shift all accumulators by one every clock cycle until  
+                    shift_Once <= '1';                          -- the result matrix has been filled with the proper values. 
 
-                    if(shiftstore <= N and shiftstore > 0) then
-                        shift_Once <= '1';
+                    if(shiftstore <= N and shiftstore > 0) then -- Store all of the elements in the accumulators into the result matrix row by row until N cycles have passed. 
+                        shift_Once <= '1';                      
                         for j in 0 to (N-1) loop
                             C(j,(shiftstore-1)) <= out_row(j);
                         end loop;
 
-                    elsif(shiftstore >= N) then
+                    elsif(shiftstore >= N) then                 -- then signal all of the accumulators to stop shifting and remain empty.
                         shift_Once <= '0';
                     end if;
 
@@ -131,7 +131,7 @@ begin
             Calc_Done <= CalcDone;
         end if;
 
-	if(shiftstore >= N) then
+	if(shiftstore >= N) then -- ensure that storedone does not go to 1 until the matrix has been properly stored within the result matrix (C)
 		StoreDone <= '1';
 	else
 		StoreDone <= '0';
