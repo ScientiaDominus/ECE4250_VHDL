@@ -5,7 +5,11 @@ use std.textio.all;
 use ieee.std_logic_textio.all;
 use work.array_type.all;
 
+-- This test bench takes the matrix located in input_matrix_1.txt and multiplies it by the matrix located in
+-- input_matrix_2.txt. The result is stored in output_matrix.txt.
 
+-- Please note, some values may need to be changed such as the value of N and the locations of the files.
+-- These lines have been marked with asterisks.
 entity testBench is
 end testBench;
 
@@ -44,14 +48,15 @@ process is
 
 
 	-- ******** This file path will need to be changed to match the file locations on your computer ********
+    -- Locations of files
 	file file_matrix2: text open read_mode is "C:\Users\cky39v\Desktop\work\input_matrix_1.txt";
 	file file_matrix1: text open read_mode is "C:\Users\cky39v\Desktop\work\input_matrix_2.txt";
 	file file_resultMatrix: text open write_mode is "C:\Users\cky39v\Desktop\work\output_matrix.txt";
 
     -- Variables for file i/o
-	variable in_line_mtx1, in_line_mtx2: line;
-	variable result_line: line;
-	variable mtx1_elem, mtx2_elem, resultMtx_elem: integer;
+	variable in_line_mtx1, in_line_mtx2: line;                 -- Lines used to read in values from the files
+	variable result_line: line;                                -- Line used to write to the output file
+	variable mtx1_elem, mtx2_elem, resultMtx_elem: integer;    -- Variables to temporarily store the elements being read in or written
 
 begin
 	for i in 0 to (N-1) loop    -- Read lines (row) from files

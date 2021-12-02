@@ -2,9 +2,8 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use work.array_type.all;
 
--------------------------------------------------------------
---This machine will be further implemented to use more than a couple bits for encoding. This will allow for multiple states to be encoded and
---proper state machine implementation.
+-- StateMachine is used to indicate what operation should currently be performed.
+-- There are 5 states. wait -> initialize array -> clear PE's -> calculate -> done
 
 entity StateMachine is
 	port(MemCheck, CalcDone, StoreDone, CLK: in std_logic;
@@ -12,7 +11,8 @@ entity StateMachine is
 end StateMachine;
 
 architecture structure of StateMachine is
-signal State: integer range 0 to 4 := 0;
+signal State: integer range 0 to 4 := 0;    -- Signal used to store the current state
+
 begin
 	process(CLK)
 	begin
