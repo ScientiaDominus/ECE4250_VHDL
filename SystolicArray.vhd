@@ -5,9 +5,7 @@ use ieee.math_real.all;
 
 package array_type is
     type input_array is array(integer range <>) of integer;
-    type input_mtx is array(integer range <>, integer range <>) of integer;
-    type output_mtx is array(integer range <>, integer range <>) of integer;
-    type ADDS is array (integer range <>, integer range <>) of integer;
+    type mtx is array(integer range <>, integer range <>) of integer;
 end package;
 
 library ieee;
@@ -17,14 +15,32 @@ use ieee.math_real.all;
 
 use work.array_type.all;
 
--- (Needs description)
+-- Systolic array
+-- Inputs:
+--      std_logic:
+--          clr: This signal is passed down from the state machine (SysControl) to signal the systolic array to clear all its outputs to 0. This preps the array for calculations
+--          clk: This signal is just a basic clock signal, it is present in all components within this project
+--          Calc_Start: This signal is passed down from SysControl to signal the systolic array to begin calculations 
+--      mtx:
+--          weights: This signal is a matrix of integers that takes the weights matrix read from a file in the parent device. This is directly mapped to the processing elements in the systolic array
+--          activations: This signal is another matrix of integers that takes the activations matrix read from a file in the parent device. This is processed with the B_row and staggering algorithm
+-- Outputs:
+--      std_logic:
+--          StoreDone: This signal outputs 1 when the result matrix is filled with the resultant values from the matrix calculation, otherwise it remains 0.
+--          Calc_Done: This signal outputs 1 when the result matrix is finished calculating and stored in the Accumulators and before it is stored into the result matrix.
+--      mtx:
+--          result: This signal is an integer matrix that stores the result of the matrix multiplication and passes it back out to the parent device to be handled by those devices.
+-- Functionality:
+--      This device will accept two matrices, weights and activations, then compute the product of the two matrices. This is done by feeding them both into a systolic array of 
+--      processing elements. Each element does a multiply and accumulate operation. The theoretical maximum number of cycles for the calculation to complete should be (3*n-1) where
+--      n is the width and height of the matrix. 
 entity SystolicArray is
     generic(N: integer range 0 to 256);
     port(
-        load, clr, clk, Calc_Start: in std_logic;
-        A: in input_mtx(0 to N-1,0 to N-1);
-        B: in input_mtx(0 to N-1,0 to N-1);
-        C: out input_mtx(0 to (N-1), 0 to (N-1));
+        clr, clk, Calc_Start: in std_logic;
+        weights: in mtx(0 to N-1,0 to N-1);
+        activations: in mtx(0 to N-1,0 to N-1);
+        result: out mtx(0 to (N-1), 0 to (N-1));
         StoreDone: out std_logic;
         Calc_Done: out std_logic
             );
@@ -32,7 +48,7 @@ end SystolicArray;
 
 architecture Structure of SystolicArray is
 component PE is
-    port(load, clr, clk: in std_logic;
+    port(clr, clk: in std_logic;
     Mcand, Mlier: in integer;
     addIn: in integer;
     Mout: out integer;
@@ -43,15 +59,15 @@ component accumulator is
     generic(index: integer range 0 to 256;
             N: integer range 0 to 256);
     port(
-        load, clr, clk, CalcDone, Calc_Start, ShiftOnce: in std_logic;
+        clr, clk, CalcDone, Calc_Start, ShiftOnce: in std_logic;
         InValue: in integer;
         OutValue: out integer;
         StoreDone: out std_logic
     );
 end component;
 
-signal addsig: ADDS(0 to N-1, 0 to N-1);                        -- This set of signals connects all of the addin/sum out signals for each processing element. this can be seen as a grid of signals that the systolic array rests within
-signal mliers: ADDS(0 to N-1, 0 to N-1);                        -- This set of signals connects all of the Multiplier in/Multiplier out signals for each processing element. This can also be seen as a grid of signals that the systolic array rests within
+signal addsig: mtx(0 to N-1, 0 to N-1);                        -- This set of signals connects all of the addin/sum out signals for each processing element. this can be seen as a grid of signals that the systolic array rests within
+signal mliers: mtx(0 to N-1, 0 to N-1);                        -- This set of signals connects all of the Multiplier in/Multiplier out signals for each processing element. This can also be seen as a grid of signals that the systolic array rests within
 signal B_row: input_array(0 to N-1) := (others => 0);           -- This is a buffer row that takes the multipliers from the staggering algorithm. This feeds the systolic array with new multipliers every clock cycle
 signal SD_Array: std_logic_vector(0 to N-1) := (others => '0'); -- This is a row of std_logic values that signals the device when the storing algorithm has completed
 signal out_row: input_array(0 to N-1) := (others => 0);         -- This is a buffer row like B_row that takes the outputs of all the accumulators and feeds them into the storing algorithm every clock cyle that storing is needed
@@ -69,12 +85,12 @@ begin
             if(in_cnt <= (2*N - 1) and clr = '0' and Calc_Start = '1') then -- This works in place of a for loop. This overarching if statement includes the algorithm for staggering the input matrix.
                     if(in_cnt <= (N - 1)) then --check if the in_cnt variable is below a certain point in the algorithm (It switches to another for loop when this occurs)
                         for j in 0 to in_cnt  loop
-                            B_row(j) <= B(j, in_cnt - j); --updated version of this line properly staggers and inserts the matrix
+                            B_row(j) <= activations(j, in_cnt - j); --updated version of this line properly staggers and inserts the matrix
                         end loop;
 
                     elsif(in_cnt <= (2*N - 1) and in_cnt > (N-1)) then --check if the in_cnt variable has counted N cycles, here the algorithm shifts
                         for k in (N-1) downto (in_cnt-(N-1)) loop
-                            B_row(k) <= B( k, in_cnt - k); --updated version of this line properly staggers and inserts the matrix
+                            B_row(k) <= activations( k, in_cnt - k); --updated version of this line properly staggers and inserts the matrix
                         end loop;
 
                         for h in 0 to in_cnt - N loop
@@ -112,7 +128,7 @@ begin
                     if(shiftstore <= N and shiftstore > 0) then -- Store all of the elements in the accumulators into the result matrix row by row until N cycles have passed. 
                         shift_Once <= '1';                      
                         for j in 0 to (N-1) loop
-                            C(j,(shiftstore-1)) <= out_row(j);
+                            result(j,(shiftstore-1)) <= out_row(j);
                         end loop;
 
                     elsif(shiftstore >= N) then                 -- then signal all of the accumulators to stop shifting and remain empty.
@@ -139,22 +155,22 @@ begin
     end process;
 
     -- Generation of PE's based on the value of N. port map is as follows:
-    -- PEXX: PE port map (load, clr, clk, Mcand , Multiplier , Add IN     , Multiplyout, Sum out    );
-    PE00: PE port map (load, clr, clk, A(0,0), B_row(0), 0, mliers(0,0), addsig(0,0));                                  -- PE 0,0
+    -- PEXX: PE port map ( clr, clk, Mcand , Multiplier , Add IN     , Multiplyout, Sum out    );
+    PE00: PE port map (clr, clk, weights(0,0), B_row(0), 0, mliers(0,0), addsig(0,0));                                  -- PE 0,0
 
     PEI: for i in 1 to (N-1) generate
-        PE_i_0: PE port map (load, clr, clk, A(0,i), B_row(i), addsig((i-1),0), mliers(i,0), addsig(i,0));              -- PE i,0
-        PE_0_j: PE port map (load, clr, clk, A(i,0), mliers(0,(i-1)), 0, mliers(0,i), addsig(0,i));                     -- PE 0,j
+        PE_i_0: PE port map (clr, clk, weights(0,i), B_row(i), addsig((i-1),0), mliers(i,0), addsig(i,0));              -- PE i,0
+        PE_0_j: PE port map (clr, clk, weights(i,0), mliers(0,(i-1)), 0, mliers(0,i), addsig(0,i));                     -- PE 0,j
 
         PEJ: for j in 1 to (N-1) generate
-            PE_i_j: PE port map (load, clr, clk, A(j,i), mliers(i,(j-1)), addsig((i-1),j), mliers(i,j), addsig(i,j));   -- PE i,j
+            PE_i_j: PE port map (clr, clk, weights(j,i), mliers(i,(j-1)), addsig((i-1),j), mliers(i,j), addsig(i,j));   -- PE i,j
         end generate PEJ;
     end generate PEI;
 
 
     --Accumulators for Matrix Storage.
     AC: for x in 0 to (N-1) generate
-        AC_x: accumulator generic map(x, N) port map (load, clr, clk, CalcDone, Calc_Start, shift_Once, addsig((N-1),x), out_row(x), SD_Array(x));
+        AC_x: accumulator generic map(x, N) port map (clr, clk, CalcDone, Calc_Start, shift_Once, addsig((N-1),x), out_row(x), SD_Array(x));
     end generate AC;
 
 end Structure;

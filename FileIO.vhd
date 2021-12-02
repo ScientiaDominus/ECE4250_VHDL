@@ -23,9 +23,9 @@ constant N : integer := 256;
 type t_matrix is array(0 to (N-1), 0 to (N-1)) of integer;
 
 signal MemCheck, clk: std_logic;                            -- Clock signal and signal for waiting on
-signal matrix1: input_mtx(0 to (N-1), 0 to (N-1));          -- The matrix that stores the activations
-signal matrix2: input_mtx(0 to (N-1), 0 to (N-1));          -- The matrix that stores the weights
-signal resultMatrix: input_mtx(0 to (N-1), 0 to (N-1));     -- The matrix used to store the result of the matrix multiplication
+signal matrix1: mtx(0 to (N-1), 0 to (N-1));          -- The matrix that stores the activations
+signal matrix2: mtx(0 to (N-1), 0 to (N-1));          -- The matrix that stores the weights
+signal resultMatrix: mtx(0 to (N-1), 0 to (N-1));     -- The matrix used to store the result of the matrix multiplication
 signal StoreDone: std_logic := '0';                         -- Signals when the result matrix is ready to be written to a file
 signal writeDone: std_logic := '0';                         -- Signals when the result matrix has finished writing to the file
 
@@ -33,8 +33,8 @@ component top is
 	generic(N: integer range 0 to 256);
 	port(
 		Mem_Check, clk: in std_logic;
-		activations, weights: in input_mtx(0 to (N-1), 0 to (N-1));
-		result: out input_mtx(0 to (N-1), 0 to (N-1));
+		activations, weights: in mtx(0 to (N-1), 0 to (N-1));
+		result: out mtx(0 to (N-1), 0 to (N-1));
 		StoreD: out std_logic
 	);
 end component;

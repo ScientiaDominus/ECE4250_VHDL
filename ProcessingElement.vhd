@@ -4,7 +4,7 @@ use IEEE.std_logic_1164.all;
 -- The processing element is the basic building block of the systolic array.
 -- It performs multiplication and accumulation
 entity PE is
-    port(load, clr, clk: in std_logic;
+    port(clr, clk: in std_logic;
         Mcand, Mlier: in integer;
         addIn: in integer;
         Mout: out integer;

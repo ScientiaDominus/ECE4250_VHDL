@@ -7,7 +7,7 @@ entity accumulator is
     generic(index: integer range 0 to 256;
             N: integer range 0 to 256);
     port(
-        load, clr, clk, CalcDone, Calc_Start, ShiftOnce: in std_logic;
+        clr, clk, CalcDone, Calc_Start, ShiftOnce: in std_logic;
         InValue: in integer;
         OutValue: out integer;
         StoreDone: out std_logic
