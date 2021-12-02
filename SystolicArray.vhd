@@ -64,7 +64,6 @@ begin
     variable shiftstore: integer := 0;                          -- This variable is used to iterate through each element of the result matrix and store each out_row as the corresponding row in C (the result matrix)
     variable in_cnt: integer := 0;                              -- This variable is used to keep track of the cycles that are used to feed B_row into the systolic array
     variable Cycle_Count: integer range 0 to (3*N) := 0;        -- Cycle count counts the cycles after the calculation was started (Calc_Start went to 1)
-    --variable run_count: integer := 0;
     begin
         if(rising_edge(clk)) then
             if(in_cnt <= (2*N - 1) and clr = '0' and Calc_Start = '1') then -- This works in place of a for loop. This overarching if statement includes the algorithm for staggering the input matrix.
