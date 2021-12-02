@@ -20,9 +20,9 @@ architecture Structure of top is
 component SystolicArray is
     generic(N: integer range 0 to 256);
     port(clr, clk, Calc_Start: in std_logic;
-        A: in mtx(0 to N-1,0 to N-1);
-        B: in mtx(0 to N-1,0 to N-1);
-        C: out mtx(0 to N-1,0 to N-1);
+        weights: in mtx(0 to N-1,0 to N-1);
+        activations: in mtx(0 to N-1,0 to N-1);
+        result: out mtx(0 to N-1,0 to N-1);
         StoreDone: out std_logic;
         Calc_Done: out std_logic);
 end component;
@@ -30,7 +30,7 @@ end component;
 --FSM component
 component StateMachine is
 	port(MemCheck, CalcDone, StoreDone, CLK: in std_logic;
-		Calc_Start, Store_Mem, clear_mem: out std_logic);
+		Calc_Start, clear_mem: out std_logic);
 end component;
 
 --Processing Element Component, This is not used in this file but is included for demonstration purposes.
@@ -56,19 +56,18 @@ end component;
 signal Calc_Done,               -- Indicates when the calculation is finished
        Store_Done,              -- Indicates when the result has been put in the result matrix
        CalcStart,               -- Start the calculation
-       StoreMem,                -- Store result
        ClearMem: std_logic;     -- Clear out values from the PE's
 begin
     StoreD <= Store_Done;
 
-    -- ---------- Probably not necessary (?) ----
-    process(clk)
-    begin
-        if clk'event and clk = '1' then
-        end if;
-    end process;
+    ------------- Probably not necessary (?) ----
+    --process(clk)
+    --begin
+    --    if clk'event and clk = '1' then
+    --    end if;
+    --end process;
     ---------------------------------------------
 
-    SC0: StateMachine port map (Mem_Check, Calc_Done, Store_Done, clk, CalcStart, StoreMem, ClearMem);
+    SC0: StateMachine port map (Mem_Check, Calc_Done, Store_Done, clk, CalcStart, ClearMem);
     SA0: SystolicArray generic map(N) port map (ClearMem, clk, CalcStart, weights, activations, result, Store_Done, Calc_Done);
 end Structure;
