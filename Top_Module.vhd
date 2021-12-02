@@ -19,12 +19,14 @@ architecture Structure of top is
 --Systolic Array Component
 component SystolicArray is
     generic(N: integer range 0 to 256);
-    port(clr, clk, Calc_Start: in std_logic;
-        A: in mtx(0 to N-1,0 to N-1);
-        B: in mtx(0 to N-1,0 to N-1);
-        C: out mtx(0 to N-1,0 to N-1);
+    port(
+        clr, clk, Calc_Start: in std_logic;
+        weights: in mtx(0 to N-1,0 to N-1);
+        activations: in mtx(0 to N-1,0 to N-1);
+        result: out mtx(0 to (N-1), 0 to (N-1));
         StoreDone: out std_logic;
-        Calc_Done: out std_logic);
+        Calc_Done: out std_logic
+            );
 end component;
 
 --FSM component
