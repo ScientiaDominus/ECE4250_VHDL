@@ -7,7 +7,7 @@ use work.array_type.all;
 
 entity StateMachine is
 	port(MemCheck, CalcDone, StoreDone, CLK: in std_logic;
-		Calc_Start, Store_Mem, clear_mem: out std_logic);
+		Calc_Start, clear_mem: out std_logic);
 end StateMachine;
 
 architecture structure of StateMachine is
@@ -35,10 +35,8 @@ begin
 			end case;
 		end if;
 	end process;
-	clear_mem <= '1' when (State = 1)
+	clear_mem <= '1' when (State = 1) -- Clear mem only goes to 1 during the first state of the state machine. 
 		else '0';
-	Calc_Start <= '1' when (State = 2)
-		else '0';
-	Store_Mem <= '1' when (State = 3) and (StoreDone = '0')
+	Calc_Start <= '1' when (State = 2)	-- Calc_Start goes to 1 until the Calculation is complete at which time it returns to 0
 		else '0';
 end structure;
