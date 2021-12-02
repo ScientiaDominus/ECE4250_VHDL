@@ -23,8 +23,8 @@ constant N : integer := 256;
 type t_matrix is array(0 to (N-1), 0 to (N-1)) of integer;
 
 signal MemCheck, clk: std_logic;                            -- Clock signal and signal for waiting on
-signal matrix1: input_mtx(0 to (N-1), 0 to (N-1));          -- The matrix that stores the activations
-signal matrix2: input_mtx(0 to (N-1), 0 to (N-1));          -- The matrix that stores the weights
+signal activations_mtx: input_mtx(0 to (N-1), 0 to (N-1));  -- The matrix that stores the activations
+signal weights_mtx: input_mtx(0 to (N-1), 0 to (N-1));      -- The matrix that stores the weights
 signal resultMatrix: input_mtx(0 to (N-1), 0 to (N-1));     -- The matrix used to store the result of the matrix multiplication
 signal StoreDone: std_logic := '0';                         -- Signals when the result matrix is ready to be written to a file
 signal writeDone: std_logic := '0';                         -- Signals when the result matrix has finished writing to the file
@@ -49,8 +49,8 @@ process is
 
 	-- ******** This file path will need to be changed to match the file locations on your computer ********
     -- Locations of files
-	file file_matrix2: text open read_mode is "C:\Users\cky39v\Desktop\work\input_matrix_1.txt";
-	file file_matrix1: text open read_mode is "C:\Users\cky39v\Desktop\work\input_matrix_2.txt";
+	file file_weights_mtx: text open read_mode is "C:\Users\cky39v\Desktop\work\input_matrix_1.txt";
+	file file_activations_mtx: text open read_mode is "C:\Users\cky39v\Desktop\work\input_matrix_2.txt";
 	file file_resultMatrix: text open write_mode is "C:\Users\cky39v\Desktop\work\output_matrix.txt";
 
     -- Variables for file i/o
@@ -60,24 +60,24 @@ process is
 
 begin
 	for i in 0 to (N-1) loop    -- Read lines (row) from files
-		readline(file_matrix1, in_line_mtx1);
-		readline(file_matrix2, in_line_mtx2);
+		readline(file_activations_mtx, in_line_mtx1);
+		readline(file_weights_mtx, in_line_mtx2);
 
 		for j in 0 to (N-1) loop    -- Read elements (column) from files
 			read(in_line_mtx1, mtx1_elem);
 			read(in_line_mtx2, mtx2_elem);
-			matrix1(i,j) <= mtx1_elem;
-			matrix2(i,j) <= mtx2_elem;
+			activations_mtx(i,j) <= mtx1_elem;
+			weights_mtx(i,j) <= mtx2_elem;
 		end loop;
 	end loop;
 
-	MemCheck <= '1';               -- Signify that the calculation is ready to start
+	MemCheck <= '1';                 -- Signify that the calculation is ready to start
 
-	wait until StoreDone = '1';    -- wait for result to be written to resultMatrix
+	wait until StoreDone = '1';      -- wait for result to be written to resultMatrix
 
-	for i in 0 to (N-1) loop       -- Store results in file
+	for i in 0 to (N-1) loop         -- Store results in file
 		for j in 0 to (N-1) loop
-			wait for 1 ns;						-- delay here that we may want to change
+			wait for 1 ns;           -- delay here that we may want to change
 			write(result_line, resultMatrix(i,j));
 			write(result_line, ' ');
 		end loop;
@@ -86,9 +86,9 @@ begin
 
 	writeDone <= '1';      -- Finished writing to file
 
-	wait;      -- Do nothing
+	wait;                  -- Do nothing
 
 end process;
     -- Top level component
-	TP00: top generic map(N) port map (MemCheck, clk, matrix1, matrix2, resultMatrix, StoreDone);
+	TP00: top generic map(N) port map (MemCheck, clk, activations_mtx, weights_mtx, resultMatrix, StoreDone);
 end internals;
