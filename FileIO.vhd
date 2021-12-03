@@ -77,7 +77,7 @@ begin
 
 	for i in 0 to (N-1) loop         -- Store results in file
 		for j in 0 to (N-1) loop
-            wait for 1 ns;           -- delay here that we may want to change
+            		--wait for 1 ns;           -- delay here that we may want to change
 			write(result_line, resultMatrix(i,j));
 			write(result_line, ' ');
 		end loop;
