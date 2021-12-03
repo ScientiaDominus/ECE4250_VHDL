@@ -1,4 +1,5 @@
 
+
 # ECE4250_VHDL Systolic Array
 This is a repository to contain and share files for the ECE 4250 VHDL project where we are tasked with designing and implementing a systolic array that completes complex matrix multiplication in VHDL.
 
@@ -8,9 +9,13 @@ This is a repository to contain and share files for the ECE 4250 VHDL project wh
 - Mason Fleck
 
 ### Input Signals
-
+- **MemCheck** - Indicates when the matricies have been stored in the systolic array memory and that the calculation should start.
+- **clk** - The clock signal for the systolic array
+- **activations_mtx** - The matrix that is fed into the systolic array. This is the matrix located in *input_matrix_2.txt*
+- **weights_mtx** - The matrix used as the stationary weights in the systolic array. This corresponds with the matrix located in *input_matrix_1.txt*
 ### Output Signals
-
+- **resultMatrix** - This is the result of multiplying weights_mtx * activations_mtx. This matrix is stored in *output_matrix.txt*
+- **StoreDone** - Indicates when the values stored in the accumulators have been stored in resultMatrix and that the calculation is complete
 
 ## File Hierarchy
 - **Results/** - Screenshots of the simulation results from various sizes of matricies
@@ -34,14 +39,15 @@ For any multiplication of two matricies mtx1*mtx2 where mtx1 and mtx2 are both N
 3. Copy/paste the values for mtx2 into *input_matrix_2.txt*
 4. Verify that the file locations specified in FileIO.vhd (approximately line 50) match the locations of *input_matrix_1.txt*, *input_matrix_2.txt*, and *output_matrix.txt*
 5.  Compile all files
-6. Start the simulation on the top module "top"
-7. Add signals from "top" as desired. Recommended signals are as follows: clk, resultMatrix, and writeDone
+6. Start the simulation on the testbench component
+7. Add signals to wave as desired. Recommended signals are as follows: clk, resultMatrix, and writeDone
 8. Set clk to a clock of 100 with duty cycle 50.
 9. Run the simulation until writeDone goes to '1'. For a 256x256 array, this takes about 200us (200ns on Intel ModelSim)
 10. Check the resulting matrix in *output_matrix.txt*
 11. If desired, the C program in *'Tests and Scripts/matrix-checker/'* can be used to verify the result of the multiplication is correct. Please see that folder for information on how to use it.
 
-*NOTE:* If using the Intel version of ModelSim, the 'wait for 1 ns' statement near line 80 of FileIO.vhd will need to be changed from ns to ps for best performance.
 
 
 ## Required Environment
+ModelSim (tested with version 2021.3)
+ModelSim Intel-FPGA Edition (tested with version 2020.1)
