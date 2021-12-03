@@ -49,9 +49,9 @@ process is
 
 	-- ******** This file path will need to be changed to match the file locations on your computer ********
     -- Locations of files
-	file file_matrix2: text open read_mode is "B:\SPB_Data\ECE4250_VHDL\input_matrix_1.txt";
-	file file_matrix1: text open read_mode is "B:\SPB_Data\ECE4250_VHDL\input_matrix_2.txt";
-	file file_resultMatrix: text open write_mode is "B:\SPB_Data\ECE4250_VHDL\output_matrix.txt";
+	file file_weights_mtx: text open read_mode is "C:\Users\mrfc9r\Documents\ECE4250_VHDL-Cameron\test matricies\8x8\input_matrix_1.txt";
+	file file_activations_mtx: text open read_mode is "C:\Users\mrfc9r\Documents\ECE4250_VHDL-Cameron\test matricies\8x8\input_matrix_2.txt";
+	file file_resultMatrix: text open write_mode is "C:\Users\mrfc9r\Documents\ECE4250_VHDL-Cameron\test matricies\8x8\output_matrix.txt";
 
     -- Variables for file i/o
 	variable in_line_mtx1, in_line_mtx2: line;                 -- Lines used to read in values from the files
@@ -77,7 +77,7 @@ begin
 
 	for i in 0 to (N-1) loop         -- Store results in file
 		for j in 0 to (N-1) loop
-            wait for 50 ps;           -- delay here that we may want to change
+            wait for 1 ns;           -- delay here that we may want to change
 			write(result_line, resultMatrix(i,j));
 			write(result_line, ' ');
 		end loop;

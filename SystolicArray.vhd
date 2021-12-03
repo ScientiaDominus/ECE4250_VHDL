@@ -146,7 +146,7 @@ begin
             Calc_Done <= CalcDone;
         end if;
 
-	if(shiftstore >= N) then -- ensure that storedone does not go to 1 until the matrix has been properly stored within the result matrix (C)
+	if(shiftstore > N) then -- ensure that storedone does not go to 1 until the matrix has been properly stored within the result matrix (C)
 		StoreDone <= '1';
 	else
 		StoreDone <= '0';
